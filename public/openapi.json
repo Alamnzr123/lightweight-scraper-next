@@ -1,0 +1,63 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Lightweight Scraper API",
+    "version": "1.0.0",
+    "description": "A small API to extract title, meta description and first h1 from a given URL."
+  },
+  "paths": {
+    "/api/scrape": {
+      "get": {
+        "summary": "Scrape a page",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "format": "uri" },
+            "description": "The URL to scrape (http or https)."
+          },
+          {
+            "name": "debug",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "boolean" },
+            "description": "When true returns full HTML or error details."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful scrape",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "title": { "type": ["string","null"] },
+                        "metaDescription": { "type": ["string","null"] },
+                        "h1": { "type": ["string","null"] },
+                        "status": { "type": "integer", "enum": [200] }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "html": { "type": "string" },
+                        "status": { "type": "integer", "enum": [200] }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid URL", "content": { "application/json": { "example": { "error": "Invalid URL" } } } },
+          "504": { "description": "Timeout", "content": { "application/json": { "example": { "error": "Timeout" } } } },
+          "500": { "description": "Server error", "content": { "application/json": { "example": { "error": "Failed to scrape page" } } } }
+        }
+      }
+    }
+  }
+}
